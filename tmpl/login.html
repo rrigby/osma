@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+{{ template "head.html" . }}
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <h1>{{.FullTitle}}</h1>
+                <p class="lead">{{.Subtitle}}</p>
+
+                    <form action="/auth" method="POST">
+                        <p><input name="username" type="text" width="40" placeholder="username"></p>
+                        <p><input name="password" type="password" width="40" placeholder="password"></p>
+                        <input style="display:none" type="submit">
+                    </form>
+
+            </div>
+        </div>
+        <div class="row">
+
+        </div>
+    </div>
+    {{template "footer.html" .}}
+    {{template "script.html" .}}
+</body>
+</html>

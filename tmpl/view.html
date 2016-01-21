@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+{{template "head.html" .}}
+<body>
+    {{template "navbar.html" .}}
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <h1>{{.FullTitle}}</h1>
+                <p class="lead">{{.Subtitle}}</p>
+            </div>
+        </div>
+        {{ range $key, $value := .Items }}
+        <div class="row">
+            <div class="col-lg-12 text-left">
+                <h1 class="genre">{{ $value.Category }}</h1>
+                <div class="height">
+                    <div class="imgc">
+                        <img src="{{ $value.Image }}"/>
+                    </div>
+                    <p class="award lead">{{ $value.Title }}</p>
+                    <p class="award lead">{{ $value.Description }}</p>
+                    <p class="award lead text-muted">Runners Up: {{ $value.RunnersUp }}</p>
+                </div>
+            </div>
+        </div>
+        {{ end }}
+    </div>
+    {{template "footer.html" .}}
+    {{template "script.html" .}}
+</body>
+</html>

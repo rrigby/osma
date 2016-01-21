@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+{{ template "head.html" . }}
+<body>
+    {{template "navbar.html" .}}
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <h1>{{.ShortTitle}}</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-3"></div>
+            <div class="col-lg-6 text-center">
+                <form id="editform" action="/save" method="POST">
+                    <h2>Page Data</h2>
+                    {{ if ne .URL "index" }}
+                    <p>URL: <input name="URL" type="text" size="40" value="{{.URL}}"></p>
+                    <p>Visible: <input name="Visible" type="checkbox" {{ if eq .Visible true}} checked {{ end }}></p>
+                    {{ else }}
+                    <input name="URL" type="hidden" size="40" value="{{.URL}}"></p>
+                    <input name="Visible" type="hidden" value="true">
+                    {{ end}}
+                    <p>ShortTitle: <input name="ShortTitle" type="text" size="40" value="{{.ShortTitle}}"></p>
+                    <p>FullTitle: <input name="FullTitle" type="text" size="40" value="{{.FullTitle}}"></p>
+                    {{ if eq .URL "index" }}
+                    <p>ShortTitle and FullTitle specify the website's titles.</p>
+                    {{ end }}
+                    <p>Subtitle: <input name="Subtitle" type="text" size="40" value="{{.Subtitle}}"></p>
+                    {{ if eq .URL "index" }}
+                    <p>Image: <input name="Image" type="text" size="40" value="{{ .Image }}"></p>
+                    <p>Body: <textarea name="Body" type="text" cols="40" rows="5" value="{{ .Body }}"></textarea></p>
+                    {{ else }}
+                        <h2>Item Data</h2>
+                        [<a id="additem">add item</a>]
+                            {{ range $key, $value := .Items }}
+                            <div class="panel panel-default">
+                                <button type="button" class="close" aria-label="Close">&times;</button>
+                                <h3>Item: {{ $key }}</h3>
+                                <div class="item-wrapper">
+                                <p>Category: <input data-field="Category" name="" type="text" size="40" value="{{ $value.Category }}"></p>
+                                <p>Title: <input data-field="Title" name="" type="text" size="40" value="{{ $value.Title }}"></p>
+                                <p>Description: <textarea data-field="Description" name="" rows="5" cols="40">{{ $value.Description }}</textarea></p>
+                                <p>RunnersUp: <input data-field="RunnersUp" name="" type="text" size="40" value="{{ $value.RunnersUp }}"></p>
+                                <p>Image: <input data-field="Image" name="" type="text" size="40" value="{{ $value.Image }}"></p>
+                                </div>
+                            </div>
+                            {{ end }}
+                    {{ end }}
+                    <p><input id="submitbutton" type="submit" value="Save"></p>
+                </form>
+            </div>
+        </div>
+    </div>
+    {{template "footer.html" .}}
+    {{template "script.html" .}}
+    <script>
+        function renamer(){
+            $('.item-wrapper').each(function(index, element){
+              $(element).find(':input').each(function(i, e){
+                $(e).attr('name', 'Items.'+index+'.'+$(this).data("field"));
+              });
+
+            });
+        }
+        $(function(){
+            $("body").on('click','.close',function(e){
+                $(this).closest('.panel').remove()
+                console.log("close pressed")
+                renamer();
+            });
+            $("#additem").click(function(e){
+                console.log("done")
+                $('<div class="panel panel-default"> \
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button> \
+                    <h3>Item: New</h3> \
+                    <div class="item-wrapper"> \
+                    <p>Category: <input data-field="Category" name="" type="text" size="40" value=""></p> \
+                    <p>Title: <input data-field="Title" name="" type="text" size="40" value=""></p> \
+                    <p>Description: <textarea data-field="Description" name="" rows="5" cols="40"></textarea></p> \
+                    <p>RunnersUp: <input data-field="RunnersUp" name="" type="text" size="40" value=""></p> \
+                    <p>Image: <input data-field="Image" name="" type="text" size="40" value=""></p> \
+                    </div> \
+                </div>').insertBefore("#submitbutton");
+                renamer();
+            });
+            renamer();
+
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+{{ template "head.html" . }}
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <h1>{{.FullTitle}}</h1>
+                <p class="lead">{{.Subtitle}}</p>
+                <p>
+                    [<a href="/new">new page</a>]
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-3 text-center"></div>
+            <div class="col-lg-6 text-center">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>URL</th>
+                            <th>Title</th>
+                            <th>Visible</th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{ range $key, $value := .NavBar }}
+                            {{ if ne $value.URL "admin"}}
+                            <tr>
+                                <td>{{ $value.URL }}</td>
+                                <td><a href="{{ $value.URL }}">{{ $value.ShortTitle }}</a></td>
+                                <td>{{ if eq $value.Visible true}} yes {{ else }} no {{ end }}</td>
+                                <td>[<a href="/edit?p={{.URL}}">edit</a>]</td>
+                                <td>
+                                    {{ if ne $value.URL "index"}}
+                                    <input data-value="{{ .URL }}" class="delete-button" type="button" value="delete">
+                                    {{ end }}
+                                </td>
+                            </tr>
+                            {{ end }}
+                        {{ end }}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {{template "footer.html" .}}
+    {{template "script.html" .}}
+    <script>
+    $(function(){
+        $(".delete-button").on('click',function(e){
+            console.log("stepped in")
+            console.log($('form').serialize())
+            if (confirm("This page will be deleted.") == true) {
+                $.ajax({
+                    url: '/delete?p='+$(this).data("value"),
+                    type: 'DELETE',
+                    success: function(result) {
+                        $(this).closest('tr').remove()
+                    },
+                    error: function(result) {
+                        console.log("failed")
+                        alert("Deleting failed.")
+                    }
+                });
+            }
+        });
+    });
+    </script>
+</body>
+</html>
