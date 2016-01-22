@@ -18,9 +18,6 @@ var templatePath = "tmpl/"
 var templates = template.Must(
 	template.ParseGlob(templatePath + "*"))
 
-var adminUsername = "admin"
-var adminPassword = "secretpass"
-
 var dbName = "osma"
 var dbSession = &mgo.Session{}
 
