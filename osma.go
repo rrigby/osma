@@ -23,6 +23,10 @@ var dbSession = &mgo.Session{}
 
 var websiteConfig = &Config{}
 
+type Session struct {
+	Hash string
+}
+var sessions map[string]
 // Config Struct stores site information
 type Config struct {
 	Ident     int
@@ -31,9 +35,11 @@ type Config struct {
 	Footer    string
 }
 
+// Admin Struct used for accessing
+// admin information from db
 type Admin struct {
 	Username       string
-	HashedPassword []byte
+	HashedPassword string
 }
 
 // Page Data Structure
@@ -148,17 +154,29 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 func authHandler(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
 	password := r.FormValue("password")
-	fmt.Println(username)
-	fmt.Println(password)
-	admin := Admin{}
+
 	s := dataBase()
 	defer s.Session.Close()
+
 	db := s.Session.DB(dbName).C("admin")
+	admin := Admin{}
 	err := db.Find(bson.M{"username": username}).One(&admin)
-	err = bcrypt.CompareHashAndPassword(admin.HashedPassword, []byte(password))
+	if err != nil {
+		fmt.Println("user not exists")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(admin.HashedPassword), []byte(password))
 	if err != nil {
 		fmt.Println("err")
+		fmt.Println("HASHED PASS:" + admin.HashedPassword)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
+	authCookie := &http.Cookie{Name: "Session", Value: "admin", MaxAge: 0}
+	http.SetCookie(w, authCookie)
+	http.Redirect(w, r, "/admin", http.StatusFound)
 }
 
 func postHandler(w http.ResponseWriter, r *http.Request) {
@@ -282,8 +300,11 @@ func main() {
 
 	// Setup admin info collection
 	db = dbSession.DB(dbName).C("admin")
-	user := &Admin{"admin", []byte("password")}
-	_, err = db.Upsert(bson.M{"username": user.Username}, bson.M{"$setOnInsert": user})
+	pass, err := bcrypt.GenerateFromPassword([]byte("password"), bcrypt.MinCost)
+	fmt.Println(pass)
+
+	//user := &Admin{"admin", pass}
+	_, err = db.Upsert(bson.M{"username": "admin"}, bson.M{"$setOnInsert": bson.M{"username": "admin", "hashedpassword": pass}})
 	if err != nil {
 		fmt.Println("Upsert failed.")
 		fmt.Println(err)
